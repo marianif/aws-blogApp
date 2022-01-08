@@ -4,7 +4,7 @@ type Post @model @auth(rules: [{ allow: public }]) {
   postOwnerUsername: String!
   postTitle: String!
   postBody: String!
-  createdAt: String
+  createdAt: String!
   comments: [Comment] @hasMany
   likes: [Like] @hasMany
 }

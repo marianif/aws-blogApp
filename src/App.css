@@ -132,6 +132,12 @@ div {
   color: white;
 }
 
+.signoutContainer {
+  display: "flex";
+  width: "100%";
+  justify-content: space-between;
+}
+
 .close {
   width: 40px;
   border-radius: 150px;
@@ -149,11 +155,9 @@ button {
   padding: 0.8rem;
   font-weight: 500;
   border-radius: 4px;
-  float: right;
   color: aliceblue;
   font-size: 1rem;
   cursor: pointer;
-  margin-top: 15px;
 }
 
 .btnContainer {
