@@ -14,7 +14,7 @@ const CreatePost = () => {
   useEffect(() => {
     (async () => {
       await Auth.currentUserInfo().then((user) => {
-        console.log(user.attributes.sub); // userId
+        // console.log(user.attributes.sub); // userId
         setPost((prev) => ({
           ...prev,
           postOwnerId: user.attributes.sub,
