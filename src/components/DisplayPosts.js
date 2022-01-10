@@ -3,16 +3,23 @@ import { listPosts, listComments } from "../graphql/queries";
 import { API, graphqlOperation } from "aws-amplify";
 import DeletePost from "./DeletePost";
 import EditPost from "./EditPost";
-import { onCreateComment, onCreatePost } from "../graphql/subscriptions";
+import {
+  onCreateComment,
+  onCreateLike,
+  onCreatePost,
+} from "../graphql/subscriptions";
 import CreateComment from "./CreateComment";
 import Comment from "./Comment";
+import AddLike from "./AddLike";
 
 const DisplayPosts = () => {
   const [posts, setPosts] = useState([]);
+  const [user, setUser] = useState({
+    id: "",
+    username: "",
+  });
 
   useEffect(() => {
-    // getPosts();
-    // getComments();
     getPostAndComments("posts");
     getPostAndComments("comments");
     const createPostListener = API.graphql(
@@ -26,56 +33,34 @@ const DisplayPosts = () => {
       },
     });
 
-    // const createCommentListener = API.graphql(
-    //   graphqlOperation(onCreateComment)
-    // ).subscribe({
-    //   next: (commentData) => {
-    //     const createdComment = commentData.value.data.onCreateComment;
-    //     let postsList = [...posts];
-    //     for (let post of postsList) {
-    //       if (post.id === createdComment.post.id) {
-    //         post.comments.items.push(createdComment);
-    //       }
-    //     }
-    //     setPosts(postsList);
-    //   },
-    // });
+    const createLikesListener = API.graphql(
+      graphqlOperation(onCreateLike)
+    ).subscribe({
+      next: (postData) => {
+        const createdLike = postData.value.data.onCreateLike;
+        console.log(createdLike);
+        let postsList = [...posts];
+        postsList.map((post) => {
+          if (post.id === createdLike.post.id) {
+            post.likes.items.push(createdLike);
+          }
+        });
+        setPosts(postsList);
+      },
+    });
     return () => {
       createPostListener.unsubscribe();
+      createLikesListener.unsubscribe();
     };
   }, []);
-
-  // const getPosts = async () => {
-  //   const result = await API.graphql(graphqlOperation(listPosts));
-  //   // console.log("Posts:" + JSON.stringify(result.data.listPosts.items));
-  //   const postsList = await result.data.listPosts.items;
-  //   setPosts(postsList);
-  // };
-
-  // const getComments = async () => {
-  //   const result = await API.graphql(graphqlOperation(listComments));
-  //   // console.log("Comments:" + JSON.stringify(result.data.listComments.items));
-  //   // console.log(result.data.listComments.items);
-  //   let comments = await result.data.listComments.items;
-  //   comments.forEach((comment) => {
-  //     posts.map((post) => {
-  //       if (post.id === comment.post.id) {
-  //         post.comments.items.push(comment);
-  //       }
-  //     });
-  //   });
-  // };
 
   const getPostAndComments = async (type) => {
     if (type === "posts") {
       const result = await API.graphql(graphqlOperation(listPosts));
-      // console.log("Posts:" + JSON.stringify(result.data.listPosts.items));
       const postsList = await result.data.listPosts.items;
       setPosts(postsList);
     } else if (type === "comments") {
       const result = await API.graphql(graphqlOperation(listComments));
-      // console.log("Comments:" + JSON.stringify(result.data.listComments.items));
-      // console.log(result.data.listComments.items);
       let comments = await result.data.listComments.items;
       comments.forEach((comment) => {
         posts.map((post) => {
@@ -91,16 +76,22 @@ const DisplayPosts = () => {
     const { id, postTitle, postOwnerUsername, postBody, createdAt } = post;
     return (
       <div className="posts" key={id}>
-        <h1>{postTitle}</h1>
-        <span>
-          {`Author: ${postOwnerUsername}`}
-          {" - on:  "}
-          <time style={{ fontStyle: "italic" }}>{`${new Date(
-            createdAt
-          ).toDateString()}`}</time>
-        </span>
-        <p>{postBody}</p>
+        <div className="postContainer">
+          <span>
+            <h1>{postTitle}</h1>
+            {`Author: ${postOwnerUsername}`}
+            {" - on:  "}
+            <time style={{ fontStyle: "italic" }}>{`${new Date(
+              createdAt
+            ).toDateString()}`}</time>
+            <p>{postBody}</p>
+          </span>
+          <span>
+            <AddLike postId={post.id} />
+          </span>
+        </div>
         <br></br>
+
         <div className="btnContainer">
           <EditPost postId={post.id} />
           <DeletePost postId={post.id} />

@@ -181,12 +181,25 @@ button {
 }
 .like-button {
   font-weight: 600;
-  border-radius: 6;
   padding: "8px";
+  border-width: 0;
   color: rgb(80, 82, 80);
   width: "40px";
   font-style: italic;
   cursor: pointer;
+  background-color: transparent;
+}
+
+.like-button:hover {
+  background-color: transparent;
+  color: rgba(9, 123, 216, 0.808);
+}
+
+.postContainer {
+  display: flex;
+  flex-direction: "row";
+  justify-content: space-between;
+  align-items: flex-end;
 }
 
 button:hover {
